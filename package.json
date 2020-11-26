@@ -9,6 +9,6 @@
   "author": "GavG",
   "license": "MIT",
   "dependencies": {
-    "pcap": "^3.1.0"
+    "net": "^1.0.2"
   }
 }
