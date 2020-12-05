@@ -8,14 +8,17 @@ net.createServer(function (socket) {
     socket.on("data", function (data) {
         
         //Watch the incoming TCP chunks over some time, find the longest, per IP (client)
-        if (
-            !clients[socket.remoteAddress] 
-            || data.length > clients[socket.remoteAddress].mtu
-        ) {
+        if (!clients[socket.remoteAddress]) {
+            clients[socket.remoteAddress] = {
+                mtu: 0,
+                response_timeout: null,
+            }
+        }
+
+        if (data.length > clients[socket.remoteAddress].mtu) {
             clients[socket.remoteAddress] = {
                 mtu: data.length,
             }
-
             respondWithMtu(socket)
         }
     })
