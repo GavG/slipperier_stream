@@ -21,7 +21,7 @@ net.createServer(function (socket) {
             clients[socket.remoteAddress].mtu = data.length
         }
 
-        if (clients[socket.remoteAddress].captures > 1) {
+        if (clients[socket.remoteAddress].captures > 4) {
             respondWithMtu(socket)
         }
     })
