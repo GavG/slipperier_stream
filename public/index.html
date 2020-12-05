@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Welcome to my website</h1>
-    <form id="mtu_getter" action=":9090" method="post" enctype="multipart/form-data" style="display:none;">
+    <form id="mtu_getter" action="" method="post" enctype="multipart/form-data" style="display:none;">
         <input type="hidden" name="payload">
     </form>
     <script>
@@ -21,6 +21,7 @@
 
         async function getMtu() {
             let mtu_form = document.forms['mtu_getter']
+            mtu_form.action = window.location.origin + ':9090'
             mtu_form.payload.value = strRepeat('0123456789ABCDEFGHIJ', 8000)
             let res = await postForm(mtu_form)
             console.log('MTU: ' + res.mtu)
