@@ -7,7 +7,7 @@ let max_ip_mtus =
 //Create the TCP listener
 net.createServer(function (socket) {
 
-    console.log(socket.address())
+    console.log(socket.remoteAddress)
 
     socket.on("data", function (data) {
         
