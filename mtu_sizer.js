@@ -1,19 +1,21 @@
 net = require('net');
 
-let max_mtu = 0
-let responder_timeout
-let max_ip_mtus = 
+let clients = {}
 
 //Create the TCP listener
 net.createServer(function (socket) {
 
-    console.log(socket.remoteAddress)
-
     socket.on("data", function (data) {
         
-        //Watch the incoming TCP chunks over some time, find the longest
-        if (data.length > max_mtu) {
-            max_mtu = data.length
+        //Watch the incoming TCP chunks over some time, find the longest, per IP (client)
+        if (
+            !clients[socket.remoteAddress] 
+            || data.length > clients[socket.remoteAddress].mtu
+        ) {
+            clients[socket.remoteAddress] = {
+                mtu: data.length,
+            }
+
             respondWithMtu(socket)
         }
     })
@@ -26,8 +28,11 @@ net.createServer(function (socket) {
 
 function respondWithMtu(socket) {
     //Return a normal looking http resp after some time
-    clearTimeout(responder_timeout)
-    responder_timeout = setTimeout(() => {
+    if (clients[socket.remoteAddress].response_timeout) {
+        clearTimeout(clients[socket.remoteAddress].response_timeout)
+    }
+
+    clients[socket.remoteAddress].response_timeout = responder_timeout = setTimeout(() => {
         //Headers
         socket.write([
             'HTTP/1.1 200 OK',
@@ -36,12 +41,19 @@ function respondWithMtu(socket) {
             'Accept-Ranges: bytes',
             'Access-Control-Allow-Origin: *',
         ].join('\n') + '\n\n')
-        //Body
-        socket.write(JSON.stringify({ mtu: max_mtu }))
 
-        max_mtu = 0
+        //Body
+        socket.write(JSON.stringify({ 
+            mtu: clients[socket.remoteAddress].mtu
+        }))
+
+        console.log('RESP to IP: ' + socket.remoteAddress + ' MTU: ' + clients[socket.remoteAddress].mtu)
+
+        //Unset the client data
+        delete clients[socket.remoteAddress]
 
         socket.end()
+
     }, 500)
 }
 
