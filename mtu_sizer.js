@@ -7,8 +7,10 @@ let max_ip_mtus =
 //Create the TCP listener
 net.createServer(function (socket) {
 
+    console.log(socket.address())
+
     socket.on("data", function (data) {
-        console.log(socket.server._connectionKey)
+        
         //Watch the incoming TCP chunks over some time, find the longest
         if (data.length > max_mtu) {
             max_mtu = data.length
